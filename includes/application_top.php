@@ -36,11 +36,6 @@ if (file_exists('includes/local/configure.php')) {
   include('includes/local/configure.php');
 }
 
-/**
- * set the level of error reporting
- */
-require('includes/error_reporting.php');
-
 /*
  * Get time zone info from PHP config
  */
@@ -58,6 +53,12 @@ if (file_exists('includes/configure.php')) {
   require('includes/templates/template_default/templates/tpl_zc_install_suggested_default.php');
   exit;
 }
+
+/**
+ * set the level of error reporting
+ */
+require('includes/error_reporting.php');
+
 /**
  * if main configure file doesn't contain valid info (ie: is dummy or doesn't match filestructure, display assistance page to suggest running the installer)
  */
