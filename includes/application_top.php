@@ -12,106 +12,13 @@
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
  * @version GIT: $Id:
  */
+
 /**
- * inoculate against hack attempts which waste CPU cycles
+ * Inoculate against hack attempts which waste CPU cycles
  */
-$contaminated = (isset($_FILES['GLOBALS']) || isset($_REQUEST['GLOBALS'])) ? true : false;
-foreach([
-  'GLOBALS',
-  '_COOKIE',
-  '_ENV',
-  '_FILES',
-  '_GET',
-  '_POST',
-  '_REQUEST',
-  '_SERVER',
-  '_SESSION',
-  'HTTP_COOKIE_VARS',
-  'HTTP_ENV_VARS',
-  'HTTP_GET_VARS',
-  'HTTP_POST_VARS',
-  'HTTP_POST_FILES',
-  'HTTP_RAW_POST_DATA',
-  'HTTP_SERVER_VARS',
-  'HTTP_SESSION_VARS',
-  'autoLoadConfig',
-  'mosConfig_absolute_path',
-  'hash',
-  'main',
-] as $key) {
-  if (isset($_GET[$key]) || isset($_POST[$key]) || isset($_COOKIE[$key])) {
-    $contaminated = true;
-    break;
-  }
-}
-if (!$contaminated) {
-  foreach([
-      'main_page' => 0,
-      'cPath' => 0,
-      'products_id' => 0,
-      'language' => 0,
-      'currency' => 0,
-      'action' => 0,
-      'manufacturers_id' => 0,
-      'pID' => 0,
-      'pid' => 0,
-      'reviews_id' => 0,
-      'filter_id' => 0,
-      'zenid' => 255,
-      'sort' => 0,
-      'number_of_uploads' => 0,
-      'notify' => 0,
-      'page_holder' => 0,
-      'chapter' => 0,
-      'alpha_filter_id' => 0,
-      'typefilter' => 0,
-      'disp_order' => 0,
-      'id' => 0,
-      'key' => 0,
-      'music_genre_id' => 0,
-      'record_company_id' => 0,
-      'set_session_login' => 0,
-      'faq_item' => 0,
-      'edit' => 0,
-      'delete' => 0,
-      'search_in_description' => 0,
-      'dfrom' => 0,
-      'pfrom' => 0,
-      'dto' => 0,
-      'pto' => 0,
-      'inc_subcat' => 0,
-      'payment_error' => 255,
-      'order' => 0,
-      'gv_no' => 0,
-      'pos' => 0,
-      'addr' => 0,
-      'error' => 0,
-      'count' => 0,
-      'error_message' => 255,
-      'info_message' => 0,
-      'cID' => 0,
-      'page' => 0,
-      'credit_class_error_code' => 0,
-    ] as $key => $len) {
-    if (isset($_GET[$key]) && !is_array($_GET[$key])) {
-      if (substr($_GET[$key], 0, 4) == 'http' || strstr($_GET[$key], '//')) {
-        $contaminated = true;
-        break;
-      }
-      if ($len > 0 && strlen($_GET[$key]) > $len) {
-        $contaminated = true;
-        break;
-      }
-    }
-  }
-}
-unset($key);
-if ($contaminated) {
-  header('HTTP/1.1 406 Not Acceptable');
-  exit(0);
-}
-unset($contaminated, $len);
-/* *** END OF INNOCULATION *** */
+require('includes/input_sanitycheck.php');
+
+
 /**
  * boolean used to see if we are in the admin script, obviously set to false here.
  */
@@ -120,34 +27,20 @@ define('IS_ADMIN_FLAG', false);
  * integer saves the time at which the script started.
  */
 define('PAGE_PARSE_START_TIME', microtime());
-//  define('DISPLAY_PAGE_PARSE_TIME', 'true');
 @ini_set("arg_separator.output","&");
 @ini_set("html_errors","0");
 /**
- * Set the local configuration parameters - mainly for developers
+ * Load the local configuration parameters if they exists - mainly for developers
  */
 if (file_exists('includes/local/configure.php')) {
-  /**
-   * load any local(user created) configure file.
-   */
   include('includes/local/configure.php');
 }
-/**
- * boolean if true the autoloader scripts will be parsed and their output shown. For debugging purposes only.
- */
-define('DEBUG_AUTOLOAD', false);
+
 /**
  * set the level of error reporting
- *
- * Note STRICT_ERROR_REPORTING should never be set to true on a production site. <br />
- * It is mainly there to show php warnings during testing/bug fixing phases.<br />
  */
-if (defined('STRICT_ERROR_REPORTING') && STRICT_ERROR_REPORTING == true) {
-  @ini_set('display_errors', TRUE);
-  error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_STRICT);
-} else {
-  error_reporting(0);
-}
+require('includes/error_reporting.php');
+
 /*
  * Get time zone info from PHP config
  */
