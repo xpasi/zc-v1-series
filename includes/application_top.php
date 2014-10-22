@@ -16,36 +16,97 @@
  * inoculate against hack attempts which waste CPU cycles
  */
 $contaminated = (isset($_FILES['GLOBALS']) || isset($_REQUEST['GLOBALS'])) ? true : false;
-$paramsToAvoid = array('GLOBALS', '_COOKIE', '_ENV', '_FILES', '_GET', '_POST', '_REQUEST', '_SERVER', '_SESSION', 'HTTP_COOKIE_VARS', 'HTTP_ENV_VARS', 'HTTP_GET_VARS', 'HTTP_POST_VARS', 'HTTP_POST_FILES', 'HTTP_RAW_POST_DATA', 'HTTP_SERVER_VARS', 'HTTP_SESSION_VARS');
-$paramsToAvoid[] = 'autoLoadConfig';
-$paramsToAvoid[] = 'mosConfig_absolute_path';
-$paramsToAvoid[] = 'hash';
-$paramsToAvoid[] = 'main';
-foreach($paramsToAvoid as $key) {
+foreach([
+  'GLOBALS',
+  '_COOKIE',
+  '_ENV',
+  '_FILES',
+  '_GET',
+  '_POST',
+  '_REQUEST',
+  '_SERVER',
+  '_SESSION',
+  'HTTP_COOKIE_VARS',
+  'HTTP_ENV_VARS',
+  'HTTP_GET_VARS',
+  'HTTP_POST_VARS',
+  'HTTP_POST_FILES',
+  'HTTP_RAW_POST_DATA',
+  'HTTP_SERVER_VARS',
+  'HTTP_SESSION_VARS',
+  'autoLoadConfig',
+  'mosConfig_absolute_path',
+  'hash',
+  'main',
+] as $key) {
   if (isset($_GET[$key]) || isset($_POST[$key]) || isset($_COOKIE[$key])) {
     $contaminated = true;
     break;
   }
 }
-$paramsToCheck = array('main_page', 'cPath', 'products_id', 'language', 'currency', 'action', 'manufacturers_id', 'pID', 'pid', 'reviews_id', 'filter_id', 'zenid', 'sort', 'number_of_uploads', 'notify', 'page_holder', 'chapter', 'alpha_filter_id', 'typefilter', 'disp_order', 'id', 'key', 'music_genre_id', 'record_company_id', 'set_session_login', 'faq_item', 'edit', 'delete', 'search_in_description', 'dfrom', 'pfrom', 'dto', 'pto', 'inc_subcat', 'payment_error', 'order', 'gv_no', 'pos', 'addr', 'error', 'count', 'error_message', 'info_message', 'cID', 'page', 'credit_class_error_code');
 if (!$contaminated) {
-  foreach($paramsToCheck as $key) {
+  foreach([
+      'main_page' => 0,
+      'cPath' => 0,
+      'products_id' => 0,
+      'language' => 0,
+      'currency' => 0,
+      'action' => 0,
+      'manufacturers_id' => 0,
+      'pID' => 0,
+      'pid' => 0,
+      'reviews_id' => 0,
+      'filter_id' => 0,
+      'zenid' => 255,
+      'sort' => 0,
+      'number_of_uploads' => 0,
+      'notify' => 0,
+      'page_holder' => 0,
+      'chapter' => 0,
+      'alpha_filter_id' => 0,
+      'typefilter' => 0,
+      'disp_order' => 0,
+      'id' => 0,
+      'key' => 0,
+      'music_genre_id' => 0,
+      'record_company_id' => 0,
+      'set_session_login' => 0,
+      'faq_item' => 0,
+      'edit' => 0,
+      'delete' => 0,
+      'search_in_description' => 0,
+      'dfrom' => 0,
+      'pfrom' => 0,
+      'dto' => 0,
+      'pto' => 0,
+      'inc_subcat' => 0,
+      'payment_error' => 255,
+      'order' => 0,
+      'gv_no' => 0,
+      'pos' => 0,
+      'addr' => 0,
+      'error' => 0,
+      'count' => 0,
+      'error_message' => 255,
+      'info_message' => 0,
+      'cID' => 0,
+      'page' => 0,
+      'credit_class_error_code' => 0,
+    ] as $key => $len) {
     if (isset($_GET[$key]) && !is_array($_GET[$key])) {
       if (substr($_GET[$key], 0, 4) == 'http' || strstr($_GET[$key], '//')) {
         $contaminated = true;
         break;
       }
-      $len = (in_array($key, array('zenid', 'error_message', 'payment_error'))) ? 255 : 43;
-      if (isset($_GET[$key]) && strlen($_GET[$key]) > $len) {
+      if ($len > 0 && strlen($_GET[$key]) > $len) {
         $contaminated = true;
         break;
       }
     }
   }
 }
-unset($paramsToCheck, $paramsToAvoid, $key);
-if ($contaminated)
-{
+unset($key);
+if ($contaminated) {
   header('HTTP/1.1 406 Not Acceptable');
   exit(0);
 }
@@ -121,7 +182,7 @@ if (file_exists('includes/defined_paths.php')) {
    */
   require('includes/defined_paths.php');
 } else {
-  die('ERROR: /includes/defined_paths.php file not found. Cannot continue.');
+  trigger_error('/includes/defined_paths.php file not found.', E_USER_ERROR);
   exit;
 }
 /**
